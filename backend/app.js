@@ -3,6 +3,8 @@ const app = express();
 app.use(express.json());
 const Cliente = require('./models/cliente');
 const mongoose = require('mongoose');
+const clienteRoutes = require ('./rotas/clientes');
+
 
 mongoose.connect('mongodb+srv://Igor123:Igor123@cluster.hhxrl.mongodb.net/teste_mean?retryWrites=true&w=majority')
   .then(() => {
@@ -13,7 +15,7 @@ mongoose.connect('mongodb+srv://Igor123:Igor123@cluster.hhxrl.mongodb.net/teste_
 
 
 
-const clientes = [{
+/* const clientes = [{
   id: '1',
   nome: 'Vitoria',
   fone: '11223344',
@@ -25,7 +27,7 @@ const clientes = [{
   fone: '898989898',
   email: 'elcio@elcio.com'
 }
-]
+] */
 
 
 app.use((req, res, next) => {
@@ -35,7 +37,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/clientes', (req, res, next) => {
+//app.use (clienteRoutes);
+app.use ('/api/clientes', clienteRoutes);
+
+/* app.get('/api/clientes', (req, res, next) => {
 
   Cliente.find().then(documents => {
     console.log(documents)
@@ -45,9 +50,9 @@ app.get('/api/clientes', (req, res, next) => {
     });
   })
 
-});
+}); */
 
-app.get('/api/clientes/:id', (req, res, next) => {
+/* app.get('/api/clientes/:id', (req, res, next) => {
   Cliente.findById(req.params.id).then(cli => {
     if (cli) {
       res.status(200).json(cli);
@@ -92,5 +97,5 @@ app.put("/api/clientes/:id", (req, res, next) => {
     });
   res.status(200).json({ mensagem: 'Atualização realizada com sucesso' })
 });
-
+ */
 module.exports = app;
