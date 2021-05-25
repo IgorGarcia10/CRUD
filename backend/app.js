@@ -1,3 +1,4 @@
+const path = require ('path');
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -13,22 +14,7 @@ mongoose.connect('mongodb+srv://Igor123:Igor123@cluster.hhxrl.mongodb.net/teste_
     console.log("Conexão NOK")
   });
 
-
-
-/* const clientes = [{
-  id: '1',
-  nome: 'Vitoria',
-  fone: '11223344',
-  email: 'jose@email.com'
-},
-{
-  id: '2',
-  nome: 'Elcio !',
-  fone: '898989898',
-  email: 'elcio@elcio.com'
-}
-] */
-
+app.use('/imagens', express.static(path.join("backend/imagens"))); 
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', "*");

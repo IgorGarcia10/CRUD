@@ -4,6 +4,7 @@ import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Cliente } from '../cliente.model';
 import { ClienteService } from '../cliente.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { mimeTypeValidator } from './mime-type.validator';
 
 @Component({
   selector: 'app-cliente-inserir',
@@ -16,6 +17,7 @@ export class ClienteInserirComponent implements OnInit {
   public cliente: Cliente;
   public estaCarregando: boolean = false;
   form: FormGroup;
+  previewImagem: string;
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -27,6 +29,10 @@ export class ClienteInserirComponent implements OnInit {
       }),
       email: new FormControl(null, {
         validators: [Validators.required, Validators.email]
+      }),
+      imagem: new FormControl(null, {
+        validators: [Validators.required],
+        asyncValidators: [mimeTypeValidator]
       })
     })
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -40,7 +46,8 @@ export class ClienteInserirComponent implements OnInit {
             id: dadosCli._id,
             nome: dadosCli.nome,
             fone: dadosCli.fone,
-            email: dadosCli.email
+            email: dadosCli.email,
+            imagemURL: null
           };
           this.form.setValue({
             nome: this.cliente.nome,
@@ -59,20 +66,6 @@ export class ClienteInserirComponent implements OnInit {
 
   constructor(public clienteService: ClienteService, public route: ActivatedRoute) { }
 
-  /* onAdicionarCliente(form: NgForm) {
-    if (form.invalid) {
-      return;
-    }
-    
-    this.clienteService.adicionarCliente(
-      form.value.nome,
-      form.value.fone,
-      form.value.email
-    );
-
-    form.resetForm();
-
-  } */
 
   onSalvarCliente() {
     if (this.form.invalid) {
@@ -83,7 +76,8 @@ export class ClienteInserirComponent implements OnInit {
       this.clienteService.adicionarCliente(
         this.form.value.nome,
         this.form.value.fone,
-        this.form.value.email
+        this.form.value.email,
+        this.form.value.imagem
       );
     }
     else {
@@ -96,5 +90,19 @@ export class ClienteInserirComponent implements OnInit {
     }
     this.form.reset();
   }
+
+  onImagemSelecionada(event: Event) {
+    const arquivo = (event.target as HTMLInputElement).files[0];
+    this.form.patchValue({ 'imagem': arquivo });
+    this.form.get('imagem').updateValueAndValidity();
+    console.log(arquivo);
+    console.log(this.form);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewImagem = reader.result as string;
+    }
+    reader.readAsDataURL(arquivo);
+  }
+
 
 }

@@ -2,16 +2,21 @@
   <mat-spinner *ngIf="estaCarregando"></mat-spinner>
   <form [formGroup]="form" (submit)="onSalvarCliente()" *ngIf="!estaCarregando">
     <mat-form-field>
-      <input type="text" matInput placeholder="nome" 
-      formControlName="nome"
-      name="nome" />
+      <input type="text" matInput placeholder="nome" formControlName="nome" name="nome" />
       <mat-error *ngIf="form.get('nome').invalid">Digite um nome válido</mat-error>
     </mat-form-field>
+
     <div>
       <button mat-stroked-button type="button" (click)="selecionaArquivo.click()">Selecionar
         Imagem</button>
-      <input type="file" #selecionaArquivo>
+      <input type="file" (change)="onImagemSelecionada($event)" #selecionaArquivo>
     </div>
+
+    <div class="imagem-preview">
+      <img [src]="previewImagem" *ngIf="previewImagem && previewImagem !== '' &&
+form.get('imagem').valid" [alt]="form.value.nome">
+    </div>
+
     <mat-form-field>
       <input type="text" matInput formControlName="fone" placeholder="fone" name="fone" />
       <mat-error *ngIf="form.get('fone').invalid">Digite um telefone válido</mat-error>

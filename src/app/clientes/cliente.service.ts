@@ -14,7 +14,7 @@ export class ClienteService {
     private router: Router) { }
 
   atualizarCliente(id: string, nome: string, fone: string, email: string) {
-    const cliente: Cliente = { id, nome, fone, email };
+    const cliente: Cliente = { id, nome, fone, email,imagemURL: null};
     this.httpClient.put(`http://localhost:3000/api/clientes/${id}`, cliente)
       .subscribe((res => {
         const copia = [...this.clientes];
@@ -30,7 +30,7 @@ export class ClienteService {
     //return {...this.clientes.find((cli) => cli.id === idCliente)};
     return this.httpClient.get<{
       _id: string, nome: string, fone: string, email:
-        string
+      string
     }>(`http://localhost:3000/api/clientes/${idCliente}`);
   }
 
@@ -45,7 +45,8 @@ export class ClienteService {
             id: cliente._id,
             nome: cliente.nome,
             fone: cliente.fone,
-            email: cliente.email
+            email: cliente.email,
+            imagemURL: cliente.imagemURL
           }
         })
       }))
@@ -55,7 +56,7 @@ export class ClienteService {
       });
   }
 
-  adicionarCliente(nome: string, fone: string, email: string) {
+  /* adicionarCliente(nome: string, fone: string, email: string) {
     const cliente: Cliente = {
       id: null,
       nome: nome,
@@ -71,24 +72,37 @@ export class ClienteService {
         this.listaClientesAtualizada.next([...this.clientes]);
         this.router.navigate(['/']);
       });
+  } */
+
+  adicionarCliente(nome: string, fone: string, email: string, imagem: File) {
+    /*const cliente: Cliente = {
+    id: null,
+    nome: nome,
+    fone: fone,
+    email: email,
+    };*/
+    const dadosCliente = new FormData();
+    dadosCliente.append("nome", nome);
+    dadosCliente.append('fone', fone);
+    dadosCliente.append('email', email);
+    dadosCliente.append('imagem', imagem);
+    this.httpClient.post<{ mensagem: string, cliente: Cliente }>
+      ('http://localhost:3000/api/clientes', dadosCliente).subscribe(
+        (dados) => {
+          /*cliente.id = dados.id;*/
+          const cliente: Cliente = {
+            id: dados.cliente.id,
+            nome: nome,
+            fone: fone,
+            email: email,
+            imagemURL: dados.cliente.imagemURL
+          };
+          this.clientes.push(cliente);
+          this.listaClientesAtualizada.next([...this.clientes]);
+          this.router.navigate(['/']);
+        }
+      )
   }
-
-
-  /*  adicionarCliente(nome: string, fone: string, email: string) {
-     const cliente: Cliente = {
-       id: null,
-       nome: nome,
-       fone: fone,
-       email: email,
-     };
-     this.httpClient
-       .post<{ mensagem: string }>('http://localhost:3000/api/clientes', cliente)
-       .subscribe((dados) => {
-         console.log(dados.mensagem);
-         this.clientes.push(cliente);
-         this.listaClientesAtualizada.next([...this.clientes]);
-       });
-   } */
 
   removerCliente(id: string): void {
     this.httpClient.delete(`http://localhost:3000/api/clientes/${id}`).subscribe(() => {
