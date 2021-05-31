@@ -12,6 +12,10 @@ export class ClienteListaComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
   private clientesSubscription: Subscription;
   public estaCarregando = false;
+  totalDeClientes: number = 10;
+  totalDeClientesPorPagina: number = 2;
+  opcoesTotalDeClientesPorPagina = [2, 5, 10];
+  
   constructor(public clienteService: ClienteService) { }
 
   ngOnInit(): void {
