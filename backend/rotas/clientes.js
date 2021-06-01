@@ -60,9 +60,38 @@ router.post('', multer({ storage: armazenamento }).single('imagem'), (req, res, 
         })
 });
 
-router.get('', (req, res, next) => {
+/* router.get('', (req, res, next) => {
     Cliente.find().then(documents => {
         console.log(documents)
+        res.status(200).json({
+            mensagem: "Tudo OK",
+            clientes: documents
+        });
+    })
+}); */
+
+/* router.get('', (req, res, next) => {
+    console.log(req.query);
+    Cliente.find().then(documents => {
+        //console.log(documents)
+        res.status(200).json({
+            mensagem: "Tudo OK",
+            clientes: documents
+        });
+    })
+}); */
+router.get('', (req, res, next) => {
+    //console.log (req.query);
+    const pageSize = +req.query.pagesize;
+    const page = +req.query.page;
+    const consulta = Cliente.find();//só executa quando chamamos then
+    if (pageSize && page) {
+        consulta
+            .skip(pageSize * (page - 1))
+            .limit(pageSize);
+    }
+    consulta.then(documents => {
+        //console.log(documents)
         res.status(200).json({
             mensagem: "Tudo OK",
             clientes: documents

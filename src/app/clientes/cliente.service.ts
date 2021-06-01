@@ -73,11 +73,32 @@ export class ClienteService {
     }>(`http://localhost:3000/api/clientes/${idCliente}`);
   }
 
-  getClientes(): void {
-    this.httpClient
-      .get<{ mensagem: string; clientes: any[] }>(
-        'http://localhost:3000/api/clientes'
-      )
+  /*  getClientes(): void {
+     this.httpClient
+       .get<{ mensagem: string; clientes: any[] }>(
+         'http://localhost:3000/api/clientes'
+       )
+       .pipe(map((dados) => {
+         return dados.clientes.map(cliente => {
+           return {
+             id: cliente._id,
+             nome: cliente.nome,
+             fone: cliente.fone,
+             email: cliente.email,
+             imagemURL: cliente.imagemURL
+           }
+         })
+       }))
+       .subscribe((clientes) => {
+         this.clientes = clientes;
+         this.listaClientesAtualizada.next([...this.clientes]);
+       });
+   } */
+
+  getClientes(pagesize: number, page: number): void {
+    const parametros = `?pagesize=${pagesize}&page=${page}`;
+    this.httpClient.get<{ mensagem: string, clientes: any }>('http://localhost:3000/api/clientes' +
+      parametros)
       .pipe(map((dados) => {
         return dados.clientes.map(cliente => {
           return {
@@ -89,13 +110,13 @@ export class ClienteService {
           }
         })
       }))
-      .subscribe((clientes) => {
-        this.clientes = clientes;
-        this.listaClientesAtualizada.next([...this.clientes]);
-      });
+      .subscribe(
+        (clientes) => {
+          this.clientes = clientes;
+          this.listaClientesAtualizada.next([...this.clientes]);
+        }
+      )
   }
-
-
 
   adicionarCliente(nome: string, fone: string, email: string, imagem: File) {
     const dadosCliente = new FormData();

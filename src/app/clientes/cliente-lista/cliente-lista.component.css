@@ -14,3 +14,6 @@ mat-spinner {
 .cliente-imagem > img {
   max-width: 50%;
 }
+mat-paginator {
+  margin-top: 1rem;
+  }
