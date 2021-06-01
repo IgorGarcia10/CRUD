@@ -8,23 +8,12 @@ import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
   private clientes: Cliente[] = [];
-  private listaClientesAtualizada = new Subject<Cliente[]>();
+  //private listaClientesAtualizada = new Subject<Cliente[]>();
+  private listaClientesAtualizada = new Subject<{ clientes: Cliente[], maxClientes: number }>();
 
   constructor(private httpClient: HttpClient,
     private router: Router) { }
 
-  /* atualizarCliente(id: string, nome: string, fone: string, email: string, imagem: File | string) {
-    const cliente: Cliente = { id, nome, fone, email,imagemURL: null};
-    this.httpClient.put(`http://localhost:3000/api/clientes/${id}`, cliente)
-      .subscribe((res => {
-        const copia = [...this.clientes];
-        const indice = copia.findIndex(cli => cli.id === cliente.id);
-        copia[indice] = cliente;
-        this.clientes = copia;
-        this.listaClientesAtualizada.next([...this.clientes]);
-        this.router.navigate(['/']);
-      }));
-  } */
 
 
   atualizarCliente(id: string, nome: string, fone: string, email: string, imagem: File | string) {
@@ -50,18 +39,7 @@ export class ClienteService {
     console.log(typeof (clienteData));
     this.httpClient.put(`http://localhost:3000/api/clientes/${id}`, clienteData)
       .subscribe((res => {
-        const copia = [...this.clientes];
-        const indice = copia.findIndex(cli => cli.id === id);
-        const cliente: Cliente = {
-          id: id,
-          nome: nome,
-          fone: fone,
-          email: email,
-          imagemURL: ""
-        }
-        copia[indice] = cliente;
-        this.clientes = copia;
-        this.listaClientesAtualizada.next([...this.clientes]);
+
         this.router.navigate(['/'])
       }));
   }
@@ -95,10 +73,10 @@ export class ClienteService {
        });
    } */
 
-  getClientes(pagesize: number, page: number): void {
+  /* getClientes(pagesize: number, page: number): void {
     const parametros = `?pagesize=${pagesize}&page=${page}`;
-    this.httpClient.get<{ mensagem: string, clientes: any }>('http://localhost:3000/api/clientes' +
-      parametros)
+    this.httpClient.get <{mensagem: string, clientes: any, maxClientes:
+      number}>('http://localhost:3000/api/clientes' + parametros)
       .pipe(map((dados) => {
         return dados.clientes.map(cliente => {
           return {
@@ -116,8 +94,40 @@ export class ClienteService {
           this.listaClientesAtualizada.next([...this.clientes]);
         }
       )
-  }
+  } */
 
+
+
+  getClientes(pagesize: number, page: number): void {
+    const parametros = `?pagesize=${pagesize}&page=${page}`;
+    this.httpClient.get<{
+      mensagem: string, clientes: any, maxClientes:
+      number
+    }>('http://localhost:3000/api/clientes' + parametros)
+      .pipe(map((dados) => {
+        return {
+          clientes: dados.clientes.map(cliente => {
+            return {
+              id: cliente._id,
+              nome: cliente.nome,
+              fone: cliente.fone,
+              email: cliente.email,
+              imagemURL: cliente.imagemURL
+            }
+          }),
+          maxClientes: dados.maxClientes
+        }
+      }))
+      .subscribe(
+        (dados) => {
+          this.clientes = dados.clientes;
+          this.listaClientesAtualizada.next({
+            clientes: [...this.clientes],
+            maxClientes: dados.maxClientes
+          });
+        }
+      )
+  }
   adicionarCliente(nome: string, fone: string, email: string, imagem: File) {
     const dadosCliente = new FormData();
     dadosCliente.append("nome", nome);
@@ -127,22 +137,12 @@ export class ClienteService {
     this.httpClient.post<{ mensagem: string, cliente: Cliente }>
       ('http://localhost:3000/api/clientes', dadosCliente).subscribe(
         (dados) => {
-          /*cliente.id = dados.id;*/
-          const cliente: Cliente = {
-            id: dados.cliente.id,
-            nome: nome,
-            fone: fone,
-            email: email,
-            imagemURL: dados.cliente.imagemURL
-          };
-          this.clientes.push(cliente);
-          this.listaClientesAtualizada.next([...this.clientes]);
           this.router.navigate(['/']);
         }
       )
   }
 
-  removerCliente(id: string): void {
+  /* removerCliente(id: string): void {
     this.httpClient.delete(`http://localhost:3000/api/clientes/${id}`).subscribe(() => {
       console.log(`Cliente de id: ${id} removido`);
       this.clientes = this.clientes.filter((cli) => {
@@ -150,6 +150,9 @@ export class ClienteService {
       });
       this.listaClientesAtualizada.next([...this.clientes]);
     });
+  } */
+  removerCliente(id: string) {
+    return this.httpClient.delete(`http://localhost:3000/api/clientes/${id}`);
   }
 
   getListaDeClientesAtualizadaObservable() {

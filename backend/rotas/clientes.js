@@ -3,15 +3,6 @@ const multer = require("multer");
 const router = express.Router();
 const Cliente = require('../models/cliente');
 
-/* const armazenamento = multer.diskStorage({
-    //requisição, arquivo extraido e uma função a ser
-    //executada, capaz de indicar um erro ou devolver
-    //o diretório em que as fotos ficarão
-    destination: (req, file, callback) => {
-        callback(null, "backend/imagens")
-    }
-}) */
-
 
 const MIME_TYPE_EXTENSAO_MAPA = {
     'image/png': 'png',
@@ -33,8 +24,6 @@ const armazenamento = multer.diskStorage({
         callback(null, `${nome}-${Date.now()}.${extensao}`);
     }
 })
-
-
 
 router.post('', multer({ storage: armazenamento }).single('imagem'), (req, res, next) => {
     const imagemURL = `${req.protocol}://${req.get('host')}`
@@ -60,43 +49,30 @@ router.post('', multer({ storage: armazenamento }).single('imagem'), (req, res, 
         })
 });
 
-/* router.get('', (req, res, next) => {
-    Cliente.find().then(documents => {
-        console.log(documents)
-        res.status(200).json({
-            mensagem: "Tudo OK",
-            clientes: documents
-        });
-    })
-}); */
-
-/* router.get('', (req, res, next) => {
-    console.log(req.query);
-    Cliente.find().then(documents => {
-        //console.log(documents)
-        res.status(200).json({
-            mensagem: "Tudo OK",
-            clientes: documents
-        });
-    })
-}); */
 router.get('', (req, res, next) => {
-    //console.log (req.query);
+    console.log(req.query);
     const pageSize = +req.query.pagesize;
     const page = +req.query.page;
     const consulta = Cliente.find();//só executa quando chamamos then
+    let clientesEncontrados;
     if (pageSize && page) {
         consulta
             .skip(pageSize * (page - 1))
             .limit(pageSize);
     }
     consulta.then(documents => {
-        //console.log(documents)
-        res.status(200).json({
-            mensagem: "Tudo OK",
-            clientes: documents
-        });
+        clientesEncontrados = documents;
+        //devolve uma Promise, tratada com o próximo then
+        return Cliente.count();
     })
+        .then((count) => {
+            res.status(200).json({
+                mensagem: "Tudo OK",
+                clientes: clientesEncontrados,
+                //devolvendo o count para o Front
+                maxClientes: count
+            });
+        })
 });
 router.delete('/:id', (req, res, next) => {
     console.log("id: ", req.params.id);
@@ -129,41 +105,6 @@ router.put(
                 res.status(200).json({ mensagem: 'Atualização realizada com sucesso' })
             });
     });
-
-/* router.put(
-    "/:id",
-    multer({ storage: armazenamento }).single('imagem'),
-    (req, res, next) => {
-        console.log(req.file);
-        const cliente = new Cliente({
-            _id: req.params.id,
-            nome: req.body.nome,
-            fone: req.body.fone,
-            email: req.body.email
-        });
-        Cliente.updateOne({ _id: req.params.id }, cliente)
-            .then((resultado) => {
-                //console.log(resultado)
-                res.status(200).json({ mensagem: 'Atualização realizada com sucesso' })
-            });
-    }); */
-/* router.put("/:id", (req, res, next) => {
-    const cliente = new Cliente({
-        _id: req.params.id,
-        nome: req.body.nome,
-        fone: req.body.fone,
-
-        email: req.body.email
-    });
-    Cliente.updateOne({ _id: req.params.id }, cliente)
-        .then((resultado) => {
-            console.log(resultado)
-            res.status(200).json({ mensagem: 'Atualização realizada com sucesso' })
-        });
-
-}); */
-
-
 
 router.get('/:id', (req, res, next) => {
     Cliente.findById(req.params.id).then(cli => {

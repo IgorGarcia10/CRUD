@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 //import { FormsModule } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule} from '@angular/common/http';
 
@@ -21,16 +21,18 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ClienteService } from './clientes/cliente.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { LoginComponent } from './auth/login/login.component';
+import { SignupComponent } from './auth/signup/signup.component';
 
 @NgModule({
   declarations: [
-    AppComponent, ClienteInserirComponent, CabecalhoComponent, ClienteListaComponent,
+    AppComponent, ClienteInserirComponent, CabecalhoComponent, ClienteListaComponent, LoginComponent, SignupComponent,
     
   ],
   imports: [
     BrowserModule,
     AppRoutingModule, 
-    //FormsModule,
+    FormsModule,
     ReactiveFormsModule, 
     NoopAnimationsModule, MatInputModule, MatCardModule, MatButtonModule, MatToolbarModule, MatExpansionModule,
     MatPaginatorModule,
